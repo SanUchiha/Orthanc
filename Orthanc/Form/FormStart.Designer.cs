@@ -45,9 +45,10 @@
             btnDownloadTemplate.FlatStyle = FlatStyle.Flat;
             btnDownloadTemplate.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point);
             btnDownloadTemplate.ForeColor = Color.Lime;
-            btnDownloadTemplate.Location = new Point(12, 211);
+            btnDownloadTemplate.Location = new Point(14, 281);
+            btnDownloadTemplate.Margin = new Padding(3, 4, 3, 4);
             btnDownloadTemplate.Name = "btnDownloadTemplate";
-            btnDownloadTemplate.Size = new Size(100, 80);
+            btnDownloadTemplate.Size = new Size(114, 107);
             btnDownloadTemplate.TabIndex = 0;
             btnDownloadTemplate.Text = "Donwload template";
             btnDownloadTemplate.UseVisualStyleBackColor = false;
@@ -61,9 +62,10 @@
             btnCloseApp.FlatStyle = FlatStyle.Flat;
             btnCloseApp.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point);
             btnCloseApp.ForeColor = Color.Lime;
-            btnCloseApp.Location = new Point(276, 211);
+            btnCloseApp.Location = new Point(315, 281);
+            btnCloseApp.Margin = new Padding(3, 4, 3, 4);
             btnCloseApp.Name = "btnCloseApp";
-            btnCloseApp.Size = new Size(100, 80);
+            btnCloseApp.Size = new Size(114, 107);
             btnCloseApp.TabIndex = 1;
             btnCloseApp.Text = "Close Orthanc";
             tTipClose.SetToolTip(btnCloseApp, "Close App");
@@ -78,10 +80,9 @@
             btnStart.FlatStyle = FlatStyle.Flat;
             btnStart.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point);
             btnStart.ForeColor = Color.Lime;
-            btnStart.Location = new Point(118, 191);
-            btnStart.Margin = new Padding(3, 2, 3, 2);
+            btnStart.Location = new Point(138, 255);
             btnStart.Name = "btnStart";
-            btnStart.Size = new Size(150, 100);
+            btnStart.Size = new Size(171, 133);
             btnStart.TabIndex = 2;
             btnStart.Text = "START";
             btnStart.UseVisualStyleBackColor = false;
@@ -93,11 +94,12 @@
             textBox1.BorderStyle = BorderStyle.None;
             textBox1.Font = new Font("Segoe UI", 11F, FontStyle.Bold, GraphicsUnit.Point);
             textBox1.ForeColor = Color.Lime;
-            textBox1.Location = new Point(12, 12);
+            textBox1.Location = new Point(14, 16);
+            textBox1.Margin = new Padding(3, 4, 3, 4);
             textBox1.Multiline = true;
             textBox1.Name = "textBox1";
             textBox1.ReadOnly = true;
-            textBox1.Size = new Size(364, 116);
+            textBox1.Size = new Size(416, 155);
             textBox1.TabIndex = 8;
             textBox1.Text = "Tournament management software that streamlines organization and tracking of tournaments. Creates custom pairings and manages results, offering information in generated files.";
             textBox1.TextAlign = HorizontalAlignment.Center;
@@ -108,27 +110,27 @@
             textBox2.BorderStyle = BorderStyle.None;
             textBox2.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
             textBox2.ForeColor = Color.Lime;
-            textBox2.Location = new Point(12, 134);
+            textBox2.Location = new Point(15, 179);
+            textBox2.Margin = new Padding(3, 4, 3, 4);
             textBox2.Multiline = true;
             textBox2.Name = "textBox2";
             textBox2.ReadOnly = true;
-            textBox2.Size = new Size(364, 52);
+            textBox2.Size = new Size(416, 69);
             textBox2.TabIndex = 9;
             textBox2.Text = "1. Press \"Download template\" to download the template.\r\n2. Click on the \"START\" button.\r\n";
             // 
             // FormStart
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.Black;
-            ClientSize = new Size(388, 304);
+            ClientSize = new Size(443, 405);
             Controls.Add(textBox2);
             Controls.Add(textBox1);
             Controls.Add(btnStart);
             Controls.Add(btnCloseApp);
             Controls.Add(btnDownloadTemplate);
             FormBorderStyle = FormBorderStyle.None;
-            Margin = new Padding(3, 2, 3, 2);
             Name = "FormStart";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Orthanc";

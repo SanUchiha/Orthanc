@@ -450,22 +450,35 @@ namespace Orthanc
                                 while (listPlayerUpdate.Count > 1)
                                 {
                                     int index1 = rand.Next(listPlayerUpdate.Count);
-                                    int index2 = rand.Next(listPlayerUpdate.Count - 1);
-                                    if (index2 >= index1) index2++;
                                     Player player1 = listPlayerUpdate[index1];
-                                    Player player2 = listPlayerUpdate[index2];
-                                    if (player1.Location == player2.Location)
+                                    Player player2 = null;
+                                    int tries = 0;
+                                    while (player2 == null && tries < listPlayerUpdate.Count)
                                     {
-                                        continue; // Los jugadores tienen la misma ubicación, saltar a la siguiente iteración del bucle
+                                        int index2 = rand.Next(listPlayerUpdate.Count);
+                                        Player tempPlayer = listPlayerUpdate[index2];
+                                        if (tempPlayer != player1 && tempPlayer.Location != player1.Location)
+                                        {
+                                            player2 = tempPlayer;
+                                        }
+                                        tries++;
                                     }
-                                    listPlayerUpdate.Remove(player1);
-                                    listPlayerUpdate.Remove(player2);
-                                    Pairing pairing = new();
+                                    if (player2 == null)
+                                    {
+                                        player2 = listPlayerUpdate.Find(p => p.Location == player1.Location && p != player1);
+                                    }
+                                    if (player2 == null)
+                                    {
+                                        break;
+                                    }
+                                    Pairing pairing = new Pairing();
                                     pairing.Table = countTables;
                                     pairing.PlayerOne = player1.Name.ToUpper();
                                     pairing.PlayerTwo = player2.Name.ToUpper();
                                     listPairings.Add(pairing);
                                     countTables++;
+                                    listPlayerUpdate.Remove(player1);
+                                    listPlayerUpdate.Remove(player2);
                                 }
 
                                 if (flagBye)
@@ -703,41 +716,89 @@ namespace Orthanc
                                     double number = listPlayerUpdate.Count / 2;
                                     number = (int)Math.Floor(number) + 1;
                                     listPlayerUpdate.RemoveAt(byeIndex);
-                                    Pairing pairing = new();
-                                    pairing.Table = (int)number;
-                                    pairing.PlayerOne = byePlayer.Name.ToUpper();
-                                    pairing.PlayerTwo = "BYE";
-                                    listPairings.Add(pairing);
+                                    Pairing pairingBye = new();
+                                    pairingBye.Table = (int)number;
+                                    pairingBye.PlayerOne = byePlayer.Name.ToUpper();
+                                    pairingBye.PlayerTwo = "BYE";
+                                    listPairings.Add(pairingBye);
                                 }
 
+                                Random random = new Random();
                                 int countTables = 1;
+
                                 while (listPlayerUpdate.Count > 1)
                                 {
-                                    int index1 = rand.Next(listPlayerUpdate.Count);
-                                    int index2 = rand.Next(listPlayerUpdate.Count - 1);
-                                    if (index2 >= index1) index2++;
-                                    Player player1 = listPlayerUpdate[index1];
-                                    Player player2 = listPlayerUpdate[index2];
-                                    player1.Side = player1.Side.ToUpper();
-                                    player2.Side = player2.Side.ToUpper();
-                                    //Controlamos side
-                                    if (player1.Side == player2.Side)
+                                    // Selecciona un jugador aleatorio
+                                    Player randomPlayer = listPlayerUpdate[random.Next(listPlayerUpdate.Count)];
+
+                                    // Filtra la lista original para encontrar un jugador que tenga un bando diferente y una ubicación diferente
+                                    List<Player> filteredPlayers = listPlayerUpdate.Where(p => p.Side.ToUpper() != randomPlayer.Side.ToUpper() && p.Location.ToUpper() != randomPlayer.Location.ToUpper()).ToList();
+
+                                    // Si no hay jugadores con bando y ubicación diferente, busca jugadores con bando diferente
+                                    if (filteredPlayers.Count == 0)
                                     {
-                                        continue; // Los jugadores tienen el mismo bando, saltar a la siguiente iteración del bucle
+                                        filteredPlayers = listPlayerUpdate.Where(p => p.Side.ToUpper() != randomPlayer.Side.ToUpper()).ToList();
                                     }
-                                    //Controlamos location
-                                    if (player1.Location == player2.Location)
+
+                                    // Si no hay jugadores con bando diferente, selecciona el siguiente jugador disponible
+                                    Player matchedPlayer = filteredPlayers[random.Next(filteredPlayers.Count)];
+
+                                    // Si se encontró un jugador emparejado, agregar un objeto de pareja de jugadores a la lista de emparejamientos, que contiene los nombres de los jugadores emparejados
+                                    if (matchedPlayer != null)
                                     {
-                                        continue; // Los jugadores tienen la misma ubicación, saltar a la siguiente iteración del bucle
+                                        Pairing pairing = new Pairing();
+                                        pairing.Table = countTables;
+                                        pairing.PlayerOne = randomPlayer.Name.ToUpper();
+                                        pairing.PlayerTwo = matchedPlayer.Name.ToUpper();
+                                        listPairings.Add(pairing);
+                                        countTables++;
+
+                                        // Elimina los jugadores emparejados de la lista original
+                                        listPlayerUpdate.Remove(randomPlayer);
+                                        listPlayerUpdate.Remove(matchedPlayer);
                                     }
-                                    listPlayerUpdate.Remove(player1);
-                                    listPlayerUpdate.Remove(player2);
-                                    Pairing pairing = new();
-                                    pairing.Table = countTables;
-                                    pairing.PlayerOne = player1.Name.ToUpper();
-                                    pairing.PlayerTwo = player2.Name.ToUpper();
-                                    listPairings.Add(pairing);
-                                    countTables++;
+                                    else // si no se encuentra un jugador emparejado con diferente bando y ubicación
+                                    {
+                                        // Filtra la lista original para encontrar un jugador que tenga un bando diferente
+                                        filteredPlayers = listPlayerUpdate.Where(p => p.Side.ToUpper() != randomPlayer.Side.ToUpper()).ToList();
+
+                                        if (filteredPlayers.Count > 0) // si se encuentra un jugador emparejado con diferente bando
+                                        {
+                                            // Selecciona un jugador aleatorio de la lista filtrada
+                                            matchedPlayer = filteredPlayers[random.Next(filteredPlayers.Count)];
+
+                                            // Agregar un objeto de pareja de jugadores a la lista de emparejamientos, que contiene los nombres de los jugadores emparejados
+                                            Pairing pairing = new Pairing();
+                                            pairing.Table = countTables;
+                                            pairing.PlayerOne = randomPlayer.Name.ToUpper();
+                                            pairing.PlayerTwo = matchedPlayer.Name.ToUpper();
+                                            listPairings.Add(pairing);
+                                            countTables++;
+
+                                            // Elimina los jugadores emparejados de la lista original
+                                            listPlayerUpdate.Remove(randomPlayer);
+                                            listPlayerUpdate.Remove(matchedPlayer);
+                                        }
+                                        else // si no se encuentra un jugador emparejado con diferente bando
+                                        {
+                                            // Selecciona un jugador aleatorio de la lista original, excepto el jugador aleatorio anterior
+                                            List<Player> exceptPlayer = listPlayerUpdate.Where(p => p != randomPlayer).ToList();
+
+                                            if (exceptPlayer.Count > 0) // si hay jugadores disponibles para emparejar
+                                            {
+                                                matchedPlayer = exceptPlayer[random.Next(exceptPlayer.Count)];
+
+                                                // Agregar un objeto de pareja de jugadores a la lista de emparejamientos, que contiene los nombres de los jugadores emparejados
+                                                Pairing pairing = new Pairing();
+                                                pairing.Table = countTables;
+                                                pairing.PlayerOne = randomPlayer.Name.ToUpper();
+                                                pairing.PlayerTwo = matchedPlayer.Name.ToUpper();
+                                                listPairings.Add(pairing);
+                                                countTables++;
+
+                                            }
+                                        }
+                                    }
                                 }
 
                                 if (flagBye)
@@ -750,8 +811,124 @@ namespace Orthanc
                             }
                             break;
                         case "Round 2":
+                            //Ordenar jugadores
+                            listPlayerUpdate = listPlayerUpdate.
+                                OrderByDescending(p => p.Point1)  // prioridad 1: más puntos
+                                .ThenByDescending(p => p.PV1 - p.PC1)  // prioridad 2: mayor diferencia entre PV1 y PC1
+                                .ThenByDescending(p => p.PV1)         // prioridad 3: más PV1
+                                .ThenByDescending(p => p.Leader1)  // prioridad 4: más líderes "Si"
+                                .ToList();
+
+                            //Mapeo de la clasification
+                            foreach (Player player in listPlayerUpdate)
+                            {
+                                Clasification clasification = new Clasification();
+                                clasification.Name = player.Name;
+                                clasification.location = player.Location;
+                                clasification.side = player.Side;
+                                clasification.points = player.Point1;
+                                clasification.diffPoints = player.PV1 - player.PC1;
+                                clasification.pointVictoryTotals = player.PV1;
+                                clasification.leadersDeadTotals = player.Leader1;
+                                listClasification.Add(clasification);
+                            }
+
+                            //Generar pairings
+                            bool flagBye2= false;
+                            // Si hay una cantidad impar de jugadores, asignar un bye a un jugador aleatorio
+                            if (listPlayerUpdate.Count % 2 != 0)
+                            {
+                                flagBye2 = true;
+                                // Seleccionar al ultimo jugador de la lista
+                                Player byePlayer = listPlayerUpdate[listPlayerUpdate.Count];
+                                double number = listPlayerUpdate.Count / 2;
+                                number = (int)Math.Floor(number) + 1;
+                                // Eliminar al jugador seleccionado de la lista
+                                listPlayerUpdate.Remove(byePlayer);
+                                // Agregar un objeto de pareja de jugadores a la lista de emparejamientos, que contiene el nombre del jugador seleccionado y la cadena "BYE"
+                                Pairing pairing = new();
+                                pairing.Table = (int)number;
+                                pairing.PlayerOne = byePlayer.Name.ToUpper();
+                                pairing.PlayerTwo = "BYE";
+                                listPairings.Add(pairing);
+                            }
+
+                            // Separar los jugadores por bando
+                            List<Player> listPlayerGood2 = new List<Player>();
+                            List<Player> listPlayerEvil2 = new List<Player>();
+                            foreach (Player player in listPlayerUpdate)
+                            {
+                                if (player.Side.ToUpper() == "GOOD")
+                                {
+                                    listPlayerGood2.Add(player);
+                                }
+                                else if (player.Side.ToUpper() == "EVIL")
+                                {
+                                    listPlayerEvil2.Add(player);
+                                }
+                            }
+
+                            int countTables2 = 1;
+                            while (listPlayerGood2.Count > 0)
+                            {
+                                Player playerGood = listPlayerGood2[0];
+                                while (listPlayerGood2.Count > 0)
+                                {
+                                    Player playerEvil = listPlayerGood2[0];
+                                    //Borramos de las listas
+                                    listPlayerGood2.Remove(playerGood);
+                                    listPlayerEvil2.Remove(playerEvil);
+                                    listPlayerUpdate.Remove(playerGood);
+                                    listPlayerUpdate.Remove(playerEvil);
+                                    //Generamos el pairing
+                                    Pairing pairing = new Pairing();
+                                    pairing.Table = countTables2; countTables2++;
+                                    pairing.PlayerOne = playerGood.Name.ToUpper();
+                                    pairing.PlayerTwo = playerEvil.Name.ToUpper();
+                                    listPairings.Add(pairing);
+
+                                }
+                            }
+
+                            // Si se acaban los jugadores de un bando, emparejar los del mismo bando entre sí
+                            while (listPlayerUpdate.Count > 1)
+                            {
+                                // Seleccionar aleatoriamente un jugador de cada bando
+                                Player player1 = listPlayerUpdate.Find(p => p.Side.ToUpper() == "GOOD");
+                                Player player2 = listPlayerUpdate.Find(p => p.Side.ToUpper() == "EVIL");
+
+                                // Si no se encuentra un jugador de cada bando, emparejar los del mismo bando
+                                if (player1 == null || player2 == null)
+                                {
+                                    // Encontrar los dos primeros jugadores de la lista
+                                    player1 = listPlayerUpdate[0];
+                                    player2 = listPlayerUpdate[1];
+                                }
+
+                                // Eliminar a los jugadores seleccionados de la lista
+                                listPlayerUpdate.Remove(player1);
+                                listPlayerUpdate.Remove(player2);
+
+                                // Agregar un objeto de pareja de jugadores a la lista de emparejamientos, que contiene los nombres de los jugadores emparejados
+                                Pairing pairing = new Pairing();
+                                pairing.Table = countTables2;
+                                pairing.PlayerOne = player1.Name.ToUpper();
+                                pairing.PlayerTwo = player2.Name.ToUpper();
+                                listPairings.Add(pairing);
+                                countTables2++;
+                            }
+
+                            if (flagBye2)
+                            {
+                                Pairing pairingBye = listPairings[0];
+                                listPairings.RemoveAt(0);
+                                listPairings.Add(pairingBye);
+                            }
                             break;
+
                         case "Round 3":
+
+
                             break;
                     }
                     break;
